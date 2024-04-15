@@ -1,5 +1,5 @@
 from sklearn.cluster import KMeans as SKLearnKMeans
-from cluster_base import ClusterBase
+from .cluster_base import ClusterBase
 
 class KMeansCluster(ClusterBase):
     def __init__(self, n_clusters=8, random_state=None):
