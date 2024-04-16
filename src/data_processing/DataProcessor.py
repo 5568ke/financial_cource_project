@@ -6,6 +6,9 @@ from tqdm import tqdm
 import dask.dataframe as dd
 from dask.diagnostics import ProgressBar
 from concurrent.futures import ProcessPoolExecutor
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
 
 
 class DataProcessor:
@@ -41,17 +44,6 @@ class DataProcessor:
         print("Finish: Preprocessing data")
         return self.dataframe
 
-    # def sanitize_and_feature_engineer(self):
-    #     print("Step: Start sanitization and feature engineering")
-    #
-    #     self.dataframe = self.dataframe.groupby('permno').filter(lambda x: len(x) >= self.WINDOW)
-    #     self.calculate_momentum()
-    #     self.interpolate_with_median()
-    #     self.remove_high_nan_features()
-    #
-    #     print("Finish: Sanitization and feature engineering")
-    #     return self.dataframe
-    #
     def sanitize_and_feature_engineer(self):
         filepath_feature_engineered = self.filepath_parquet.replace('.parquet', '_features.parquet')
 
@@ -97,9 +89,6 @@ class DataProcessor:
         print("Finish: Interpolating with median")
 
 
-
-
-
     def remove_high_nan_features(self):
         print("step: Removing high nan features")
 
@@ -109,5 +98,30 @@ class DataProcessor:
         print(self.dataframe[['permno', 'mom48m']].tail(100))
 
         print("Finish: Removing high nan features")
+
+    def reduce_dimensionality_with_pca(self, variance_threshold=0.99):
+        print("Step: Reducing dimensionality with PCA")
+
+        features_to_exclude = [f'mom{i}m' for i in range(1, self.WINDOW + 1)]
+        features_to_scale = self.dataframe.select_dtypes(include=['float64', 'int64', 'float32', 'int32']).columns.tolist()
+        features_to_scale = [feature for feature in features_to_scale if feature not in features_to_exclude and feature not in ['permno', 'DATE']]
+
+        pipeline = Pipeline([
+            ('scaler', StandardScaler()),
+            ('pca', PCA(n_components=variance_threshold))
+        ])
+
+        scaled_and_reduced_features = pipeline.fit_transform(self.dataframe[features_to_scale])
+
+        pca_result_df = pd.DataFrame(scaled_and_reduced_features)
+
+        pca_result_df = pd.concat([self.dataframe[['permno', 'DATE']], pca_result_df], axis=1)
+        for feature in features_to_exclude:
+            pca_result_df[feature] = self.dataframe[feature]
+
+        self.dataframe = pca_result_df
+
+        print("Finish: Dimensionality reduction with PCA")
+        return self.dataframe
 
 

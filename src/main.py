@@ -10,13 +10,11 @@ def main():
         max_year=2021
     )
 
-    data = processor.load_data()
-    
-    processed_data = processor.preprocess_data()  
-
-    sanitized_data = processor.sanitize_and_feature_engineer()
-
-    print(sanitized_data.tail(5))
+    processor.load_data()
+    processor.preprocess_data()  
+    processor.sanitize_and_feature_engineer()
+    pca_data = processor.reduce_dimensionality_with_pca()
+    print("pca_data : ",pca_data.tail(100))
 
     # cluster = KMeansCluster(n_clusters=5)
     # cluster_labels = cluster.fit_predict(sanitized_data)
