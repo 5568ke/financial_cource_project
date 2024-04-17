@@ -99,29 +99,42 @@ class DataProcessor:
 
         print("Finish: Removing high nan features")
 
+
     def reduce_dimensionality_with_pca(self, variance_threshold=0.99):
-        print("Step: Reducing dimensionality with PCA")
+        pca_file_path = self.filepath_parquet.replace('.parquet', '_pca.parquet')
+        
+        # Check if the PCA result file already exists
+        if os.path.exists(pca_file_path):
+            print("Step: Loading preprocessed data with PCA")
+            self.dataframe = pd.read_parquet(pca_file_path)
+            print(f"Finished: Data loaded from {pca_file_path}")
+        else:
+            print("Step: Starting dimensionality reduction with PCA")
 
-        features_to_exclude = [f'mom{i}m' for i in range(1, self.WINDOW + 1)]
-        features_to_scale = self.dataframe.select_dtypes(include=['float64', 'int64', 'float32', 'int32']).columns.tolist()
-        features_to_scale = [feature for feature in features_to_scale if feature not in features_to_exclude and feature not in ['permno', 'DATE']]
+            # Selecting features to scale, excluding the ones that don't require dimensionality reduction
+            features_to_exclude = ['permno', 'DATE'] + [f'mom{i}m' for i in range(1, self.WINDOW + 1)]
+            features_to_scale = [feature for feature in self.dataframe.columns if feature not in features_to_exclude]
 
-        pipeline = Pipeline([
-            ('scaler', StandardScaler()),
-            ('pca', PCA(n_components=variance_threshold))
-        ])
+            pipeline = Pipeline([
+                ('scaler', StandardScaler()),
+                ('pca', PCA(n_components=variance_threshold))
+            ])
 
-        scaled_and_reduced_features = pipeline.fit_transform(self.dataframe[features_to_scale])
+            # Fitting the pipeline to the data
+            scaled_and_reduced_features = pipeline.fit_transform(self.dataframe[features_to_scale])
 
-        pca_result_df = pd.DataFrame(scaled_and_reduced_features)
+            # Creating a DataFrame for the PCA results
+            pca_result_df = pd.DataFrame(scaled_and_reduced_features)
 
-        pca_result_df = pd.concat([self.dataframe[['permno', 'DATE']], pca_result_df], axis=1)
-        for feature in features_to_exclude:
-            pca_result_df[feature] = self.dataframe[feature]
+            # Concatenating the non-scaled features with the PCA results
+            pca_result_df = pd.concat([self.dataframe[['permno', 'DATE']], pca_result_df], axis=1)
+            for feature in features_to_exclude:
+                pca_result_df[feature] = self.dataframe[feature]
 
-        self.dataframe = pca_result_df
+            self.dataframe = pca_result_df
 
-        print("Finish: Dimensionality reduction with PCA")
+            # Saving the PCA result to a file for future use
+            self.dataframe.to_parquet(pca_file_path, index=False, compression='snappy')
+
+            print("Finished: Dimensionality reduction with PCA")
         return self.dataframe
-
-
