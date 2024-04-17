@@ -2,6 +2,8 @@ from sklearn.cluster import KMeans
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
+from sklearnex import patch_sklearn
+patch_sklearn()
 
 class KMeansCluster:
     def __init__(self, n_clusters=5, init='k-means++', n_init=10, max_iter=300, random_state=None):
