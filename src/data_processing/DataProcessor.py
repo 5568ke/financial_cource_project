@@ -57,9 +57,12 @@ class DataProcessor:
             self.calculate_momentum()
             self.interpolate_with_median()
             self.remove_high_nan_features()
-            
+
             self.dataframe.to_parquet(filepath_feature_engineered, index=False, compression='snappy')
             print("Finish: Sanitization and feature engineering")
+
+
+
         return self.dataframe
 
 
@@ -74,7 +77,6 @@ class DataProcessor:
         self.dataframe.drop(columns=[f'log_mom{i}m' for i in range(2, self.WINDOW + 1)], inplace=True)
 
         print("Finish: Calculating momentum features")
-        
 
     def interpolate_with_median(self):
         print("step: Interpolating with median")
@@ -88,7 +90,6 @@ class DataProcessor:
 
         print("Finish: Interpolating with median")
 
-
     def remove_high_nan_features(self):
         print("step: Removing high nan features")
 
@@ -99,11 +100,9 @@ class DataProcessor:
 
         print("Finish: Removing high nan features")
 
-
     def reduce_dimensionality_with_pca(self, variance_threshold=0.99):
         pca_file_path = self.filepath_parquet.replace('.parquet', '_pca.parquet')
-        
-        # Check if the PCA result file already exists
+
         if os.path.exists(pca_file_path):
             print("Step: Loading preprocessed data with PCA")
             self.dataframe = pd.read_parquet(pca_file_path)
@@ -114,6 +113,12 @@ class DataProcessor:
             # Selecting features to scale, excluding the ones that don't require dimensionality reduction
             features_to_exclude = ['permno', 'DATE'] + [f'mom{i}m' for i in range(1, self.WINDOW + 1)]
             features_to_scale = [feature for feature in self.dataframe.columns if feature not in features_to_exclude]
+
+            # Ensure no NaNs or infs before scaling
+#            self.dataframe[features_to_scale] = self.dataframe[features_to_scale].fillna(
+#                self.dataframe[features_to_scale].median())
+#           self.dataframe[features_to_scale] = self.dataframe[features_to_scale].replace([np.inf, -np.inf], np.nan)
+#            self.dataframe[features_to_scale] = self.dataframe[features_to_scale].ffill().bfill()
 
             pipeline = Pipeline([
                 ('scaler', StandardScaler()),
