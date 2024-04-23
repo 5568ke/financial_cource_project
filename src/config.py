@@ -1,5 +1,3 @@
-# config.py
-
 # Define the clustering algorithm to use
 CLUSTERING_ALGORITHM = 'kmeans'  # Options: 'kmeans', 'dbscan', 'agglomerative', 'faiss'
 

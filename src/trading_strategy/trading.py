@@ -1,5 +1,9 @@
 import pandas as pd
 import numpy as np
+from tqdm import tqdm
+import warnings
+
+warnings.filterwarnings('ignore', category=RuntimeWarning)
 
 class PairTradingService:
     def __init__(self, std_dev_factor=1.5):
@@ -7,8 +11,10 @@ class PairTradingService:
         self.portfolio_history = []
 
     def find_pairs(self, cluster_data):
+        cluster_data = cluster_data.reset_index()
         sorted_data = cluster_data.sort_values(by='mom1m', ascending=False)
         pairs = []
+
         for i in range(len(sorted_data) // 2):
             top_stock = sorted_data.iloc[i]
             bottom_stock = sorted_data.iloc[-(i + 1)]
@@ -27,17 +33,44 @@ class PairTradingService:
             long_short_portfolio['short'].append(top_stock['permno'])
         return long_short_portfolio
 
-    def execute_trades(self, portfolio):
-        print(f"Going long on: {portfolio['long']}")
-        print(f"Going short on: {portfolio['short']}")
+    def manage_monthly_trades(self, grouped_data):
+        month_data_dict = {}
+        portfolios_dict = {}
+        month_return = []
+        total_return = 1
 
+        # tqdm is used here to show the progress of managing monthly trades
+        for month, month_data in tqdm(grouped_data, desc="Managing monthly trades"):
+            month_data_dict[month] = month_data
+
+        for month, month_data in tqdm(month_data_dict.items(), desc="Processing each month"):
+            grouped_by_cluster = month_data.groupby('cluster')
+            current_month_portfolio = {'long': [], 'short': []}
+
+            for cluster, cluster_data in grouped_by_cluster:
+                pairs = self.find_pairs(cluster_data)
+                portfolio = self.form_portfolio(pairs)
+                current_month_portfolio['long'].extend(portfolio['long'])
+                current_month_portfolio['short'].extend(portfolio['short'])
+
+            portfolios_dict[month] = current_month_portfolio
+
+            next_month = month + pd.DateOffset(months=1)
+            if next_month in month_data_dict:
+                next_month_data = month_data_dict[next_month]
+                returns = self.calculate_monthly_returns(current_month_portfolio, next_month_data)
+                month_return.append([month, returns])
+
+        for data in tqdm(month_return, desc="Calculating total returns"):
+            total_return *= (1 + data[1])
+
+        return total_return, month_return
 
     def calculate_monthly_returns(self, portfolio, month_data):
-
         long_returns = []
         short_returns = []
         month_data.set_index('permno', inplace=True)
-        print("month_data : ",month_data["mom1m"])
+
         for permno in portfolio['long']:
             if permno in month_data.index:
                 long_returns.append(month_data.loc[permno, 'mom1m'])
@@ -48,8 +81,4 @@ class PairTradingService:
 
         total_returns = long_returns + short_returns
         average_return = np.mean(total_returns) if total_returns else 0
-        self.portfolio_history.append({
-            'portfolio': portfolio,
-            'return': average_return
-        })
         return average_return
