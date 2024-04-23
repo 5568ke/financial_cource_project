@@ -1,83 +1,111 @@
-# Financial course final Project
+# Project Name: Financial Market Analysis Tool
 
-## Introduction
-This project is the final assignment for the course "Topics in Financial Mathematics I", aiming to replicate the research presented in the paper "Pair Trading via Unsupervised Learning". The goal is to apply various unsupervised learning techniques to develop a pair trading strategy that can be utilized in the financial markets.
+## Overview
+This project aims to analyze financial data using clustering algorithms to identify investment opportunities and manage and execute trades through a pair trading strategy. Integrating data processing, cluster analysis, and trading strategies, the project helps users extract valuable information from complex market data and base their trading strategies on this information.
 
-## Project Structure
-
+## Project structure & description
 Below is the directory structure of the project and explanations for each module:
 
 ```
 pair_trading_project/
-│
-├── data/ # Data storage directory
-│ ├── raw/ # Raw data
-│ └── processed/ # Preprocessed data
-│
-├── docs/ # Documentation and project explanation
-│
-├── src/ # Source code directory
-│ ├── init.py
-│ ├── main.py # Program entry point and workflow control
-│ ├── config.py # Configuration file processing
-│ ├── data_processing/ # Data processing module
-│ │ ├── init.py
-│ │ └── data_loader.py # Data loading and preprocessing
-│ │
-│ ├── clustering/ # Clustering analysis module
-│ │ ├── init.py
-│ │ ├── cluster_base.py # Base class for clustering algorithms
-│ │ ├── kmeans.py # K-means implementation
-│ │ ├── dbscan.py # DBSCAN implementation
-│ │ └── agglomerative.py# Agglomerative clustering implementation
-│ │
-│ ├── trading_strategy/ # Trading strategy module
-│ │ ├── init.py
-│ │ ├── strategy_base.py# Base class for strategies
-│ │ └── pair_trading.py # Pair trading strategy implementation
-│ │
-│ └── utilities/ # Utilities module
-│ ├── init.py
-│ ├── logger.py # Logging management
-│ └── metrics.py # Performance evaluation metrics
-│
-├── tests/ # Unit testing directory
-│ ├── init.py
-│ └── test_data_loader.py
-│
-└── requirements.txt # Project dependencies
+├── datafile/                          # Directory for storing data files
+│   └── ... # Data files location
+├── print_project_structure.py         # Python script to print project structure
+├── README.md                          # Project documentation file
+├── requirements.txt                   # File listing required Python packages
+├── src/                               # Directory for storing source code
+│   ├── __init__.py                    # Initialization file for src directory
+│   ├── clustering/                    # Directory for clustering algorithm related code
+│   │   ├── __init__.py                # Initialization file for clustering directory
+│   │   ├── agglomerative.py           # Implementation file for agglomerative clustering algorithm
+│   │   ├── cluster_base.py            # Implementation file for clustering base class
+│   │   ├── cluster_factory.py         # Implementation file for clustering factory
+│   │   ├── dbscan.py                  # Implementation file for DBSCAN clustering algorithm
+│   │   └── kmeans.py                  # Implementation file for K-Means clustering algorithm
+│   ├── config.py                      # Project configuration file
+│   ├── data_processing/               # Directory for data processing related code
+│   │   ├── __init__.py                # Initialization file for data_processing directory
+│   │   └── DataProcessor.py           # Implementation file for data processor
+│   ├── main.py                        # Main program entry point and workflow control
+│   ├── trading_strategy/              # Directory for trading strategy related code
+│   │   ├── __init__.py                # Initialization file for trading_strategy directory
+│   │   └── trading.py                 # Implementation file for trading strategy
+│   └── utilities/                    # Directory for utilities related code
+│       ├── __init__.py                # Initialization file for utilities directory
+│       └── utils.py                   # Implementation file for utilities
+└── venv/                              # Directory for Python virtual environment
+
 ```
-
-
-## Modules Description
-
-- `data/`: Contains all the data used in the project, including raw financial data and processed data ready for analysis.
-- `docs/`: Stores documentation related to the project, including setup instructions and methodology explanations.
-- `src/`: The core of the project, including all source code for data processing, clustering algorithms, and trading strategies.
-  - `data_processing/`: Handles data loading from various sources and preprocessing tasks such as cleaning and normalization.
-  - `clustering/`: Implements various unsupervised learning algorithms to identify pairs in the financial data.
-  - `trading_strategy/`: Contains the logic for executing pair trading based on the output from the clustering algorithms.
-  - `utilities/`: Provides additional functionalities like logging and performance metrics to support the main modules.
-- `tests/`: Contains unit tests for various components of the project to ensure code reliability and correctness.
-- `requirements.txt`: Lists all the Python packages required to run the project.
-
-## Design Patterns and Technologies Used
-
-- **Strategy Pattern**: Implemented in the `trading_strategy/` module to allow easy interchangeability between different trading strategies.
-- **Factory Pattern**: Utilized for creating instances of different clustering algorithms in the `clustering/` module, promoting flexibility and extensibility.
-- **Singleton Pattern**: Applied in the `config.py` for managing global configurations throughout the application.
-- **Observer Pattern**: Could be used in conjunction with the `logger.py` to notify subscribers of log events throughout the application's execution.
+## Module Descriptions
+- **Data Processing (`data_processing`)**: Handles loading and preprocessing of financial datasets, converting them into formats suitable for analysis. Key tasks include cleaning data, handling missing values, and performing PCA for dimensionality reduction.
+- **Clustering (`clustering`)**: Provides various clustering algorithms to group similar data points together, enhancing the identification of patterns within the data. This module supports K-means, DBSCAN, and potentially other clustering methods as configured.
+- **Trading Strategy (`trading_strategy`)**: Utilizes the outputs from the clustering module to form trading strategies. The `PairTradingService` class implements the logic for identifying pairs and managing trades based on momentum indicators.
 
 ## Getting Started
+### Install Dependencies
 
-To run this project, you'll need Python 3.6+ installed on your system. First, install the required dependencies:
+Before running the project, you must install the necessary Python packages that the project depends on. These dependencies are listed in the `requirements.txt` file. Depending on your package manager, you can install these using pip or a Conda-based environment manager like Anaconda or Miniconda. Here are the instructions for both methods:
 
-```bash
-pip install -r requirements.txt
+- **Using pip**:
+    Open your terminal or command prompt and execute the following command to install the packages with pip:
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+    This will download and install all the required packages with the correct versions to ensure compatibility with the project.
+
+- **Using Conda/Anaconda**:
+    If you are using Conda or Anaconda, you can create a new environment and install the necessary packages using the `conda` command. Replace `myenv` with your preferred environment name:
+
+    ```bash
+    conda create --name myenv --file requirements.txt
+    ```
+
+    Activate the newly created environment with:
+
+    ```bash
+    conda activate myenv
+    ```
+
+Choose the installation method that best fits your workflow. Both will set up the environment necessary to run the project successfully.
+
+### Before running the analysis
+
+- Configuration File: Adjust the config.py file to set up your data sources and model parameters. The program will prompt you to select a model and whether to use cached data upon execution. The cached data will be stored in the path specified for the corresponding model in config.py.
+- Here is an example of what the config.py script looks like:
+```python
+# File path configurations
+PATHS = {
+    'kmeans': {
+        'models': "../datafile/kmeans/models_df.pkl",
+        'data': "../datafile/kmeans/clean_data.pkl"
+    },
+    'dbscan': {
+        'models': "../datafile/dbscan/models_df.pkl",
+        'data': "../datafile/dbscan/clean_data.pkl"
+    },
+#    // ... other path configurations
+}
+
+# Algorithm parameters configuration
+KMEANS_PARAMS = {
+    'n_clusters': 32,
+    'random_state': 1211
+}
+# // ... other algorithm parameters
+
 ```
-Next, navigate to the src/ directory and run the main.py script to start the analysis:
+Adjust the values to fit your specific data path and desired clustering behavior. 
+### **Run the Program**: 
+Execute main.py from the src/ directory to start the analysis:
 ```
 cd src
 python main.py
 ```
+During program execution, messages will be displayed, the program will prompt you to select a model and whether to use cached data upon execution. The cached data will be stored in the path specified for the corresponding model in config.py. This interactive process is crucial for determining the workflow of the program.
 
+
+Here is an example of what the program interaction looks like:
+
+![img.png](img.png)
