@@ -1,12 +1,16 @@
 from sklearn.cluster import KMeans
-import pandas as pd
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
 from sklearnex import patch_sklearn
 patch_sklearn()
 
-class KMeansCluster:
-    def __init__(self, n_clusters=5, init='k-means++', n_init=10, max_iter=300, random_state=None):
+# Import the ClusterBase class
+from .cluster_base import ClusterBase
+
+class KMeansCluster(ClusterBase):
+    def __init__(self, n_clusters=5, init='k-means++', n_init=10, max_iter=300, random_state=None, non_feature_columns=None):
+        super().__init__(non_feature_columns)
         self.n_clusters = n_clusters
         self.init = init
         self.n_init = n_init
@@ -22,8 +26,7 @@ class KMeansCluster:
         all_data_frames = []
 
         for month, data in tqdm(feature_data.groupby("DATE"), desc="Training KMeans clusters"):
-            # Remove 'DATE' and 'permno' columns before clustering
-            feature_subset = data.drop(['DATE', 'permno'], axis=1)
+            feature_subset = self.filter_feature_data(data)
             if len(feature_subset) < 2:
                 print(f"Skipping {month} due to insufficient data.")
                 continue
@@ -36,11 +39,10 @@ class KMeansCluster:
             threshold = np.percentile(min_distances, 95)
 
             # Annotate original data with cluster labels and determine outliers
-            data['cluster'] = self.model.labels_
-            data['is_outlier'] = min_distances > threshold  # Marking points as outliers if their distance to the nearest cluster center is above the threshold
+            annotated_data = self.annotate_data(data, self.model.labels_, min_distances, threshold)
 
             # Append annotated data
-            all_data_frames.append(data)
+            all_data_frames.append(annotated_data)
 
             # Record model details for each month
             models_dfs.append({'DATE': month, 'n_clusters': self.n_clusters})
@@ -50,6 +52,3 @@ class KMeansCluster:
         models_df = pd.DataFrame(models_dfs)
 
         return models_df, annotated_df
-
-
-
