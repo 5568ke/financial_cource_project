@@ -1,11 +1,9 @@
 import pandas as pd
 import numpy as np
 import os
-import pyarrow.parquet as pq
 from tqdm import tqdm
-import dask.dataframe as dd
-from dask.diagnostics import ProgressBar
-from concurrent.futures import ProcessPoolExecutor
+from sklearnex import patch_sklearn
+patch_sklearn()
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline

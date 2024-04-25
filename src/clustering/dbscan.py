@@ -1,9 +1,10 @@
-from sklearn.cluster import DBSCAN
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 import numpy as np
 from tqdm import tqdm
-
+from sklearnex import patch_sklearn
+patch_sklearn()
+from sklearn.cluster import DBSCAN
 # Import the ClusterBase class
 from .cluster_base import ClusterBase
 

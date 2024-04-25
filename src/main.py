@@ -1,7 +1,6 @@
 import config
-from utilities.utils import get_user_decision, load_model_data, train_new_model, manage_trades
+from utilities.utils import get_user_decision, load_model_data, train_new_model, manage_trades, plot_compare_results
 from clustering.cluster_factory import ClusterFactory
-
 
 def main():
     # Prompt the user to decide whether to use cached data or retrain the model
@@ -20,6 +19,11 @@ def main():
     print("Finish trading")
     print("Total accumulated return percentage: ", total_return)
 
+    # Call the plot_compare_results function
+    plot_compare_results()
+
+    # Print a message indicating that the comparison plot has been generated
+    print("Comparison plot of asset changes across clustering algorithms has been generated.")
 
 if __name__ == "__main__":
     main()

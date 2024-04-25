@@ -1,12 +1,11 @@
-from sklearn.cluster import KMeans
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+from .cluster_base import ClusterBase
 from sklearnex import patch_sklearn
 patch_sklearn()
-
 # Import the ClusterBase class
-from .cluster_base import ClusterBase
+from sklearn.cluster import KMeans
 
 class KMeansCluster(ClusterBase):
     def __init__(self, n_clusters=5, init='k-means++', n_init=10, max_iter=300, random_state=None, non_feature_columns=None):

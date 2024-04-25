@@ -1,11 +1,13 @@
 import os
 import config
 import pandas as pd
+import numpy as np
 from data_processing.DataProcessor import DataProcessor
 from trading_strategy.trading import PairTradingService
-
+import matplotlib.pyplot as plt
 model_path=""
 data_path=""
+CLUSTERING_ALGORITHM=""
 
 def load_and_prepare_data():
     processor = DataProcessor(
@@ -64,8 +66,11 @@ def get_user_decision():
 def load_model_data():
     models_df = pd.read_pickle(model_path)
     clustered_data = pd.read_pickle(data_path)
+    print("model_df : ", models_df)
+    print("clustered_data : ", clustered_data)
     print("Loaded models and data from existing files.")
     return models_df, clustered_data
+
 
 def train_new_model(cluster_factory):
     feature_data = load_and_prepare_data()
@@ -73,6 +78,8 @@ def train_new_model(cluster_factory):
     models_df, clustered_data = model.fit(feature_data)
     models_df.to_pickle(model_path)
     clustered_data.to_pickle(data_path)
+    print("model_df : ", models_df)
+    print("clustered_data : ", clustered_data)
     print(f"Results saved to {model_path} and {data_path}")
     return models_df, clustered_data
 
@@ -85,3 +92,38 @@ def manage_trades(clustered_data):
     grouped_by_month = clustered_data.groupby(pd.Grouper(freq='ME'))
     total_return, month_return = pair_trading_service.manage_monthly_trades(grouped_by_month)
     return total_return, month_return
+
+def plot_compare_results():
+    # Create a dictionary to store total returns for each clustering algorithm
+    all_returns = {}
+
+    # Iterate over each clustering algorithm
+    for algo, paths in config.PATHS.items():
+        returns_list_path = paths['returns_list']
+        if os.path.exists(returns_list_path):
+            # Read total returns from returns_list file
+            total_returns = pd.read_pickle(returns_list_path)
+            # Store total returns in the dictionary
+            all_returns[algo] = total_returns
+
+    # Plotting
+    plt.figure(figsize=(10, 6))
+    for algo, returns in all_returns.items():
+        years = np.arange(1981, 1981 + len(returns))  # Generate years starting from 1980
+        plt.plot(years, returns, label=algo)
+
+    # Calculate and annotate average annualized return
+    for algo, returns in all_returns.items():
+        average_return = returns[-1] ** (1/len(returns)) - 1
+        plt.text(len(returns) + 1981, returns[-1], f'{algo} IRR : {average_return:.2%}', fontsize=8.5, verticalalignment='bottom')
+
+    plt.title('Comparison of Asset Changes Across Clustering Algorithms')
+    plt.xlabel('Years')
+    plt.ylabel('Investment Return Multiplier')
+    plt.legend()
+    plt.grid(True)
+
+    # Save the plot to the specified path
+    compare_result_path = config.COMPARE_RESULT_PATH
+    plt.savefig(compare_result_path)
+    plt.show()

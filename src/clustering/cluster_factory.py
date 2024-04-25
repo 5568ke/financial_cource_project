@@ -1,6 +1,6 @@
 from .kmeans import KMeansCluster
 from .dbscan import DBSCANCluster
-# from clustering.agglomerative import AgglomerativeCluster
+from .agglomerative import AgglomerativeCluster
 # from clustering.faiss import FaissCluster
 
 class ClusterFactory:
@@ -19,8 +19,8 @@ class ClusterFactory:
             return KMeansCluster(**self.config.KMEANS_PARAMS)
         elif algorithm == 'dbscan':
             return DBSCANCluster(**self.config.DBSCAN_PARAMS)
-        # elif algorithm == 'agglomerative':
-        #     return AgglomerativeCluster(**self.config.AGGLOMERATIVE_PARAMS)
+        elif algorithm == 'agglo':
+             return AgglomerativeCluster(**self.config.AGGLOMERATIVE_PARAMS)
         # elif algorithm == 'faiss':
         #     return FaissCluster(**self.config.FAISS_PARAMS)
         else:
