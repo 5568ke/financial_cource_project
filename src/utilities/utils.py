@@ -97,6 +97,17 @@ def plot_compare_results():
     # Create a dictionary to store total returns for each clustering algorithm
     all_returns = {}
 
+    # sp500 price list
+    sp500_prices = [
+        133.00, 117.30, 144.30, 166.40, 171.60, 208.20, 264.50, 250.50, 285.40, 339.97,
+        325.49, 416.08, 435.23, 472.99, 465.25, 614.42, 766.22, 963.36, 1248.77, 1425.59,
+        1335.63, 1140.21, 895.84, 1132.52, 1181.41, 1278.73, 1424.16, 1378.76, 865.58,
+        1123.58, 1282.62, 1300.58, 1480.40, 1822.36, 2028.18, 1918.60, 2275.12, 2789.80,
+        2607.39, 3278.20, 3793.75
+    ]
+    # Adjust SP500 prices relative to the initial price
+    sp500_returns = [price / sp500_prices[0] for price in sp500_prices]
+
     # Iterate over each clustering algorithm
     for algo, paths in config.PATHS.items():
         returns_list_path = paths['returns_list']
@@ -105,7 +116,7 @@ def plot_compare_results():
             total_returns = pd.read_pickle(returns_list_path)
             # Store total returns in the dictionary
             all_returns[algo] = total_returns
-
+    all_returns['SP500'] = sp500_returns
     # Plotting
     plt.figure(figsize=(10, 6))
     for algo, returns in all_returns.items():
