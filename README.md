@@ -152,3 +152,15 @@ The datafile/ directory contains cached data used during the analysis process. T
 - **total_returns.pkl**: Holds the calculated list of total returns for each year from the trading strategy.
 
 These files are generated and updated throughout the analysis process and are used to speed up subsequent runs by reusing previously computed results. Users have the option to configure these paths in the `config.py` file based on their preferences.
+
+## References
+
+### Academic Papers
+- Chulwoo Han, Zhaodong He, and Alenson Jun Wei Toh, "Pairs Trading via Unsupervised Learning." Durham University and Nanyang Technological University, April 28, 2021.
+- Simão Nava de Moraes Sarmento, "Enhancing a Pairs Trading strategy with the application of Machine Learning." Master of Science Thesis, Electrical and Computer Engineering, Universidade de Lisboa, September 2019.
+- Weiguang Han, Boyi Zhang, Qianqian Xie, Min Peng, Yanzhao Lai, Jimin Huang. "Select and Trade: Towards Unified Pair Trading with Hierarchical Reinforcement Learning," in Proceedings of the KDD '23, August 6–10, 2023, Long Beach, CA, USA.
+- Jeff Johnson, Matthijs Douze, and Hervé Jégou, "Billion-scale similarity search with GPUs," *arXiv preprint arXiv:1702.08734*, February 2017.
+
+### Online Articles
+- "Unsupervised Learning as Signals for Pairs Trading and StatArb," *Medium*, Call for Atlas. [Read here](https://medium.com/call-for-atlas/unsupervised-learning-as-signals-for-pairs-trading-and-statarb-c5d6bf3db7cb).
+- "Pairs-Trading Strategy Analysis," *Medium*, Call for Atlas. [Read here](https://medium.com/call-for-atlas/pairs-trading-strategy-every-stock-needs-a-friend-e50723a1dc94).
