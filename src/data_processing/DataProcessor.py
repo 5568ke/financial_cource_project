@@ -51,10 +51,12 @@ class DataProcessor:
         """Sanitize and feature engineer the preprocessed data."""
         filepath_feature_engineered = self.filepath_parquet.replace('.parquet', '_features.parquet')
 
+        result = pd.DataFrame()
         if os.path.exists(filepath_feature_engineered):
             # If preprocessed and feature engineered data exists, load it
             print("Step: Loading preprocessed and feature engineered data")
-            self.dataframe = pd.read_parquet(filepath_feature_engineered)
+            #self.dataframe = pd.read_parquet(filepath_feature_engineered)
+            result = pd.read_parquet(filepath_feature_engineered)
             print("Finish: Loading preprocessed and feature engineered data")
         else:
             # Otherwise, start sanitization and feature engineering
@@ -65,10 +67,18 @@ class DataProcessor:
             self.remove_high_nan_features()
 
             # Save the preprocessed and feature engineered data as Parquet
-            self.dataframe.to_parquet(filepath_feature_engineered, index=False, compression='snappy')
+            # self.dataframe.to_parquet(filepath_feature_engineered, index=False, compression='snappy')
+            # print("Finish: Sanitization and feature engineering")
+
+            result=pd.DataFrame()
+            features_to_exclude = ['permno', 'DATE'] + [f'mom{i}m' for i in range(1, self.WINDOW + 1)]
+            for feature in features_to_exclude:
+                result[feature] = self.dataframe[feature]
+            result.to_parquet(filepath_feature_engineered, index=False, compression='snappy')
             print("Finish: Sanitization and feature engineering")
 
-        return self.dataframe
+        #return self.dataframe
+        return result
 
 
     def calculate_momentum(self):

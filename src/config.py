@@ -8,19 +8,22 @@ PATHS = {
         'models': "../datafile/kmeans/models_df.pkl",
         'data': "../datafile/kmeans/clean_data.pkl",
         'plot': "../plots/kmeans_asset_changes.png",
-        'returns_list': "../datafile/kmeans/total_returns.pkl"  # Add returns_list path for kmeans
+        'returns_list': "../datafile/kmeans/total_returns.pkl",  # Add returns_list path for kmeans
+        'monthly_return_plot':"../plots/kmeans_monthly_return_plot.png"
     },
     'dbscan': {
         'models': "../datafile/dbscan/models_df.pkl",
         'data': "../datafile/dbscan/clean_data.pkl",
         'plot': "../plots/dbscan_asset_changes.png",
-        'returns_list': "../datafile/dbscan/total_returns.pkl"  # Add returns_list path for dbscan
+        'returns_list': "../datafile/dbscan/total_returns.pkl",  # Add returns_list path for dbscan
+        'monthly_return_plot':"../plots/dbscan_monthly_return_plot.png"
     },
     'agglo': {
         'models': "../datafile/agglomerative/models_df.pkl",
         'data': "../datafile/agglomerative/clean_data.pkl",
         'plot': "../plots/agglomerative_asset_changes.png",
-        'returns_list': "../datafile/agglomerative/total_returns.pkl"  # Add returns_list path for agglomerative
+        'returns_list': "../datafile/agglomerative/total_returns.pkl",  # Add returns_list path for agglomerative
+        'monthly_return_plot':"../plots/agglo_monthly_return_plot.png"
     },
     'faiss': {
         'models': "../datafile/faiss/models_df.pkl",

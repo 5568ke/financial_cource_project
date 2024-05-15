@@ -27,10 +27,10 @@ class PairTradingService:
             diff = top_stock['mom1m'] - bottom_stock['mom1m']
             pairs.append((top_stock, bottom_stock, diff))
 
-        std_dev = np.std([p[2] for p in pairs])
-        valid_pairs = [p for p in pairs if p[2] > std_dev * self.std_dev_factor]
+        #std_dev = np.std([p[2] for p in pairs])
+        #valid_pairs = [p for p in pairs if p[2] > std_dev * self.std_dev_factor]
 
-        return valid_pairs
+        return pairs
 
     def form_portfolio(self, pairs):
         long_short_portfolio = {'long': [], 'short': []}
@@ -43,11 +43,19 @@ class PairTradingService:
         grouped_by_cluster = month_data.groupby('cluster')
         current_month_portfolio = {'long': [], 'short': []}
 
+        all_pairs=[]
         for cluster, cluster_data in grouped_by_cluster:
             pairs = self.find_pairs(cluster_data)
-            portfolio = self.form_portfolio(pairs)
-            current_month_portfolio['long'].extend(portfolio['long'])
-            current_month_portfolio['short'].extend(portfolio['short'])
+            all_pairs += pairs
+
+        std_dev = np.std([p[2] for p in all_pairs])
+        valid_pairs = [p for p in all_pairs if p[2] > std_dev * self.std_dev_factor]
+
+        print(" pair data for month ", month, "\n pair numbers: ", len(valid_pairs))
+
+        portfolio = self.form_portfolio(valid_pairs)
+        current_month_portfolio['long'].extend(portfolio['long'])
+        current_month_portfolio['short'].extend(portfolio['short'])
 
         return month, current_month_portfolio
 
@@ -77,13 +85,16 @@ class PairTradingService:
                     returns = self.calculate_monthly_returns(current_month_portfolio, next_month_data)
                     month_return.append([month, returns])
 
-        total_returns=[]
+        total_returns = []
+        monthly_returns = []
         for i, data in enumerate(tqdm(month_return, desc="Calculating total returns")):
             total_return *= (1 + data[1])
+            monthly_returns.append(data[1])
             if (i + 1) % 12 == 0:
                 total_returns.append(total_return)
 
         self.save_asset_changes_plot(total_returns)
+        self.save_monthly_returns_plot(monthly_returns)
 
         # Calculate IRR
         print("Annual IRR : ", total_return ** (1 / len(total_returns))*100-100,"%")
@@ -104,7 +115,7 @@ class PairTradingService:
 
         total_returns = long_returns + short_returns
         average_return = np.mean(total_returns) if total_returns else 0
-        return average_return
+        return average_return * 0.9985 # from https://www.sec.gov/edgar/filer/filing-fees/filing-fee-rate
 
     def save_asset_changes_plot(self,total_returns):
         """
@@ -127,3 +138,20 @@ class PairTradingService:
         total_returns_file = os.path.join(data_folder, '..', 'total_returns.pkl')  # Path to store total_returns data
         with open(total_returns_file, 'wb') as f:
             pickle.dump(total_returns, f)
+
+    def save_monthly_returns_plot(self, monthly_returns):
+        """
+        Save the plot of monthly returns over the investment period.
+
+        Args:
+            monthly_returns (list): List of monthly returns over the investment period.
+        """
+        print(monthly_returns)
+        plot_path = PATHS[config.CLUSTERING_ALGORITHM]['monthly_return_plot']  # Get the plot path from the config
+        plt.figure(figsize=(10, 6))
+        plt.plot(monthly_returns, marker='o', linestyle='-')
+        plt.title('Monthly Returns Over Investment Period')
+        plt.xlabel('Months')
+        plt.ylabel('Monthly Return')
+        plt.grid(True)
+        plt.savefig(plot_path)  # Save the plot to the specified path

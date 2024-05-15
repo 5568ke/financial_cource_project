@@ -18,9 +18,10 @@ def load_and_prepare_data():
     )
     processor.load_data()
     processor.preprocess_data()
-    processor.sanitize_and_feature_engineer()
-    feature_data = processor.reduce_dimensionality_with_pca()
+    feature_data = processor.sanitize_and_feature_engineer()
+    # feature_data = processor.reduce_dimensionality_with_pca()
     feature_data.columns = feature_data.columns.astype(str)
+    print(feature_data.tail(100))
     return feature_data
 
 
